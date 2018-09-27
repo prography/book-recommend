@@ -13,10 +13,10 @@ $ git checkout -b myfeature(feat_[issue-number]) development
 
 $ git commit -m "close #1 - make some function" 이슈 닫아줌
 
-$ git checkiut devleopment
-$ git merge -no-ff myfeature 필히 머지커밋 만들어줌
+$ git checkout devleop-server
+$ git merge --no-ff myfeature 필히 머지커밋 만들어줌
 $ git branch -d myfeature
-4 git push origin development
+4 git push origin develop-server
 
 ```
 
