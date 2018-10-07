@@ -1,0 +1,22 @@
+{
+  "name": "book_recommend_server",
+  "version": "0.0.0",
+  "description": "### branch architecture - master \t- development \t\t- local : feature \t\t- develop-server \t\t- release-server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/prography/book-recommend.git"
+  },
+  "keywords": [
+    "serverless_express"
+  ],
+  "author": "prography",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prography/book-recommend/issues"
+  },
+  "homepage": "https://github.com/prography/book-recommend#readme"
+}
