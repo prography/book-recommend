@@ -1,0 +1,30 @@
+{
+  "name": "book_recommend_backend",
+  "version": "0.0.0",
+  "description": "booK_recommend_backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prography/book-recommend.git"
+  },
+  "keywords": [
+    "serverless-http",
+    "aws"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prography/book-recommend/issues"
+  },
+  "homepage": "https://github.com/prography/book-recommend#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "serverless-http": "^1.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.6.1"
+  }
+}
