@@ -12,6 +12,14 @@ app.get('/author', function(res,req){
     res.json(result);
 })
 
+app.get('/blist', function(res,req) {
+    const result = {
+        author: "안녕",
+        age: 1
+    }
+    res.json(result);
+});
+
 export default app;
 
 
