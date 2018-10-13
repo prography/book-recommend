@@ -23,9 +23,15 @@ app.get('/blist', function(res,req) {
 app.get('/test', function(res, req) {
     const result = {
         id : 1,
+<<<<<<< HEAD
         text : "테스트중입니다"
     }
     res.json(result);
+=======
+        comment : "테스트중입니다"
+    }
+    res.json(resut);
+>>>>>>> feat_24
 });
 
 export default app;
