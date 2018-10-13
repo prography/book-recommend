@@ -12,12 +12,14 @@
 # Happy Coding!
 
 service: book_recommend_server # NOTE: update this with your service name
-
-# You can pin your service to only deploy with a specific Serverless version
+app: book-recommend-serverless
+tenant: q00serverless 
+# You can kpin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
 plugins:
   - serverless-offline
+  - serverless-webpack
 
 provider:
   name: aws
@@ -47,6 +49,10 @@ provider:
 #  environment:
 #    variable1: value1
 
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
 # you can add packaging information here
 #package:
 #  include:
@@ -58,7 +64,7 @@ provider:
 
 functions:
   app:
-    handler: src/serverless.handler
+    handler: ./src/app.handler
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
