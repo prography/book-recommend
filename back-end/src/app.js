@@ -10,7 +10,7 @@ app.get('/author', function(res,req){
         age: "25"
     }
     res.json(result);
-})
+});
 
 app.get('/blist', function(res,req) {
     const result = {
@@ -18,6 +18,14 @@ app.get('/blist', function(res,req) {
         age: 1
     }
     res.json(result);
+});
+
+app.get('/test', function(res, req) {
+    const result = {
+        id : 1,
+        comment : "테스트중입니다"
+    }
+    res.json(resut);
 });
 
 export default app;
