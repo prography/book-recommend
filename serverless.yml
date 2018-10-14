@@ -18,8 +18,8 @@ tenant: q00serverless
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
 plugins:
-  - serverless-offline
   - serverless-webpack
+  - serverless-offline
 
 provider:
   name: aws
@@ -63,8 +63,8 @@ custom:
 #    - exclude-me-dir/**
 
 functions:
-  app:
-    handler: ./src/app.handler
+  book:
+    handler: src/app.handler
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
@@ -74,8 +74,7 @@ functions:
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-#    events:
-#      - http:
+#    events: #      - http:
 #          path: users/create
 #          method: get
 #      - s3: ${env:BUCKET}
