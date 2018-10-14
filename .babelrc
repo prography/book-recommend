@@ -1,8 +1,7 @@
 {
-    "plugins":[
-	["babel-plugin-source-map-support"]
-    ],
-    "presets":[
-       ["@babel/preset-env"],
-    ]	   
-}
+        "plugins": [
+	          ["module-resolver", {
+		              "root": ["./src"]
+				        }]
+	    ]
+		  }
