@@ -81,77 +81,33 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/app.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/book.js");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./node_modules/webpack/buildin/harmony-module.js":
-/*!*******************************************!*\
-  !*** (webpack)/buildin/harmony-module.js ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = function(originalModule) {
-	if (!originalModule.webpackPolyfill) {
-		var module = Object.create(originalModule);
-		// module.parent = undefined by default
-		if (!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		Object.defineProperty(module, "exports", {
-			enumerable: true
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-
-/***/ "./src/app.js":
-/*!********************!*\
-  !*** ./src/app.js ***!
-  \********************/
-/*! no exports provided */
+/***/ "./src/book.js":
+/*!*********************!*\
+  !*** ./src/book.js ***!
+  \*********************/
+/*! exports provided: book */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(module) {/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
-/* harmony import */ var source_map_support_register__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(source_map_support_register__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "book", function() { return book; });
 
 
-var express = __webpack_require__(/*! express */ "express");
+const express = __webpack_require__(/*! express */ "express");
+const serverless = __webpack_require__(/*! serverless-http */ "serverless-http");
+const app = express();
+app.use(express.urlencoded({ extended: false }));
 
-var serverless = __webpack_require__(/*! serverless-http */ "serverless-http");
-
-var app = express();
-app.use(express.urlencoded({
-  extended: false
-}));
-app.get('/', function (req, res) {
-  res.json({
-    "hello serverless": true
-  });
+app.get('/', (req, res) => {
+    res.json({ "hello serverless book": true });
 });
-app.listen(3000, function () {
-  console.log('listen 3000');
-});
-module.exports.handler = serverless(app);
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/webpack/buildin/harmony-module.js */ "./node_modules/webpack/buildin/harmony-module.js")(module)))
+
+const book = serverless(app);
 
 /***/ }),
 
@@ -175,18 +131,7 @@ module.exports = require("express");
 
 module.exports = require("serverless-http");
 
-/***/ }),
-
-/***/ "source-map-support/register":
-/*!**********************************************!*\
-  !*** external "source-map-support/register" ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = require("source-map-support/register");
-
 /***/ })
 
 /******/ })));
-//# sourceMappingURL=app.js.map
+//# sourceMappingURL=book.js.map
