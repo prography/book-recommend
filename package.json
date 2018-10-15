@@ -4,7 +4,9 @@
   "description": "booK_recommend_backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "serverless offline start",
+    "make sls": "rm serverless.yml;sls create -t aws-nodejs;git checkout -- serverless.yml;rm handler.js;npm install && git checkout -- package-lock.json",
+    "check syn": "./node_modules/.bin/eslint ."
   },
   "repository": {
     "type": "git",

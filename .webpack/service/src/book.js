@@ -99,14 +99,18 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const express = __webpack_require__(/*! express */ "express");
+
 const serverless = __webpack_require__(/*! serverless-http */ "serverless-http");
+
 const app = express();
-app.use(express.urlencoded({ extended: false }));
-
+app.use(express.urlencoded({
+  extended: false
+}));
 app.get('/', (req, res) => {
-    res.json({ "hello serverless book": true });
+  res.json({
+    "hello serverless book": true
+  });
 });
-
 const book = serverless(app);
 
 /***/ }),
