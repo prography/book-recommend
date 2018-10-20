@@ -6,6 +6,8 @@
 - 인증방식은 현재 cognito를 생각하고 있음
 
 # 구조
+- DB DUMMY DATA
+[DB 구조](https://www.notion.so/5a0c294a96a44c6ba9e2091ffaed8e68)
 
 RDS인스턴스를 terraform 으로 띄우고 RDS 인스턴스에 lambda function이 db에 접근함
 
