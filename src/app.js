@@ -1,17 +1,15 @@
 'use strict';
-const express = require('express');
-const serverless = require('serverless-http');
+import express from 'express';
+import cors from 'cors';
 const app = express();
+//import tockenCheck from 'lib/middleware/tockenCheck';
+import api from 'api';
 
 app.use(express.urlencoded({extended: false}));
 
-app.get('/', (req, res) => {
-    const boooook = {
-	book: "hi",
-	author: "lee"
-    };
-    res.json(boooook);
-    
-});
+app.use(cors());
+app.use(api);
+//app.use(tokenCheck())
+//    .use(api.routes());
 
 export default app;
