@@ -5,7 +5,12 @@ const app = express();
 app.use(express.urlencoded({extended: false}));
 
 app.get('/', (req, res) => {
-    res.json({"hello serverless book":true});
+    const boooook = {
+	book: "hi",
+	author: "lee"
+    };
+    res.json(boooook);
+    
 });
 
 export const book = serverless(app);
