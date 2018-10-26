@@ -62,7 +62,7 @@ custom:
 
 functions:
   book:
-    handler: src/book.book 
+    handler: src/serverless.handler
     events:
       - http: ANY / 
 
