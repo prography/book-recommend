@@ -130,14 +130,66 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "register", function() { return register; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "login", function() { return login; });
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../config */ "./src/config/index.js");
+/* harmony import */ var amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! amazon-cognito-identity-js */ "amazon-cognito-identity-js");
+/* harmony import */ var amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! aws-sdk */ "aws-sdk");
+/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(aws_sdk__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var request__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! request */ "request");
+/* harmony import */ var request__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(request__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var jwk_to_pem__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! jwk-to-pem */ "jwk-to-pem");
+/* harmony import */ var jwk_to_pem__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(jwk_to_pem__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! jsonwebtoken */ "jsonwebtoken");
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(jsonwebtoken__WEBPACK_IMPORTED_MODULE_5__);
 
+
+
+
+
+
+
+const CognitoUserPool = amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1__["CognitoUserPool"];
+const userPool = new amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1__["CognitoUserPool"](_config__WEBPACK_IMPORTED_MODULE_0__["default"].poolData);
 
 const register = async ctx => {
-    console.log('this is register form');
+			try {
+						const attributeList = [];
+						//이후 어떤 값을 더받아야하는지 얘기후 추가
+						attributeList.push(new amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1__["CognitoUserAttribute"]({ Name: 'email', Value: ctx.body.email }));
+						userPool.signUp(ctx.body.id, ctx.body.pw, attributeList, null, function (err, result) {
+									if (err) {
+												console.log(err);
+												return;
+									}
+									console.log(result);
+									//let cognitoUser = result.user;
+						});
+			} catch (err) {
+						console.log(err);
+			}
 };
 
 const login = async ctx => {
-    console.log('this is login form');
+			const authenticationDetails = new amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1__["AuthenticationDetails"]({
+						Username: ctx.body.id,
+						Password: ctx.body.pw
+			});
+
+			const userData = {
+						Username: ctx.body.id,
+						Pool: userPool
+
+			};
+			const cognitoUser = new amazon_cognito_identity_js__WEBPACK_IMPORTED_MODULE_1__["CognitoUser"](userData);
+			cognitoUser.authenticateUser(authenticationDetails, {
+						onSuccess: function (result) {
+									console.log('access token : ' + result.getAccessToken().getJwtToken());
+									console.log('id token : ' + result.getIdToken().getJwtToken());
+									console.log('Refresh token : ' + result.getRefreshToken().getToken());
+						},
+						onFailure: function (err) {
+									console.log(err);
+						}
+			});
 };
 
 /***/ }),
@@ -158,8 +210,8 @@ __webpack_require__.r(__webpack_exports__);
 
 const router = express__WEBPACK_IMPORTED_MODULE_1___default.a.Router();
 
-router.get('/register', _auth_ctrl__WEBPACK_IMPORTED_MODULE_0__["register"]);
-router.get('/login', _auth_ctrl__WEBPACK_IMPORTED_MODULE_0__["login"]);
+router.post('/register', _auth_ctrl__WEBPACK_IMPORTED_MODULE_0__["register"]);
+router.post('/login', _auth_ctrl__WEBPACK_IMPORTED_MODULE_0__["login"]);
 
 /* harmony default export */ __webpack_exports__["default"] = (router);
 
@@ -224,10 +276,10 @@ app.use(_api__WEBPACK_IMPORTED_MODULE_2__["default"]);
 /*!*********************************!*\
   !*** ./src/config/env/env.json ***!
   \*********************************/
-/*! exports provided: dev, prod, default */
+/*! exports provided: development, production, default */
 /***/ (function(module) {
 
-module.exports = {"dev":{"port":"3000"},"prod":{}};
+module.exports = {"development":{"port":"3000","poolData":{"UserPoolId":"ap-northeast-2_S46yR4qtz","ClientId":"7topj3ad7cebdqe137sv6lutab"},"pool_region":"us-northeast-2"},"production":{}};
 
 /***/ }),
 
@@ -244,7 +296,6 @@ __webpack_require__.r(__webpack_exports__);
 var _env_env_json__WEBPACK_IMPORTED_MODULE_0___namespace = /*#__PURE__*/__webpack_require__.t(/*! ./env/env.json */ "./src/config/env/env.json", 1);
 
 const env = "development" || 'dev';
-console.log(env);
 /* harmony default export */ __webpack_exports__["default"] = (_env_env_json__WEBPACK_IMPORTED_MODULE_0__[env]);
 
 /***/ }),
@@ -269,6 +320,28 @@ const handler = serverless_http__WEBPACK_IMPORTED_MODULE_0___default()(_app__WEB
 
 /***/ }),
 
+/***/ "amazon-cognito-identity-js":
+/*!*********************************************!*\
+  !*** external "amazon-cognito-identity-js" ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("amazon-cognito-identity-js");
+
+/***/ }),
+
+/***/ "aws-sdk":
+/*!**************************!*\
+  !*** external "aws-sdk" ***!
+  \**************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("aws-sdk");
+
+/***/ }),
+
 /***/ "cors":
 /*!***********************!*\
   !*** external "cors" ***!
@@ -288,6 +361,39 @@ module.exports = require("cors");
 /***/ (function(module, exports) {
 
 module.exports = require("express");
+
+/***/ }),
+
+/***/ "jsonwebtoken":
+/*!*******************************!*\
+  !*** external "jsonwebtoken" ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("jsonwebtoken");
+
+/***/ }),
+
+/***/ "jwk-to-pem":
+/*!*****************************!*\
+  !*** external "jwk-to-pem" ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("jwk-to-pem");
+
+/***/ }),
+
+/***/ "request":
+/*!**************************!*\
+  !*** external "request" ***!
+  \**************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("request");
 
 /***/ }),
 
