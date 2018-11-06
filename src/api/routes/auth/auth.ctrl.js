@@ -43,6 +43,8 @@ export const login = async ctx => {
 				console.log('access token : ' + result.getAccessToken().getJwtToken());
 				console.log('id token : ' + result.getIdToken().getJwtToken());
 				console.log('Refresh token : ' + result.getRefreshToken().getToken());
+				updateLogin(result.getIdToken().getJwtToken());
+                success(result.getAccessToken().getJwtToken());
 			},
 			onFailure: function(err){
 				console.log(err);
@@ -50,6 +52,21 @@ export const login = async ctx => {
 		});
 	} catch (error) {
 		console.log(error);
+	}
+}
+
+const updateLogin = async token => {
+	try{
+		const credential = {};
+		const url = 'cognito-idp.' + config.pool_region + '.amazonaws.com/' + config.poolData.UserPoolId;
+		credentials['Logins'] = {};
+		credentials['Logins'][url] = token;
+		credentials['IdentityPoolId'] = config.IdentityPoolId;
+		AWSCognito.config.update({
+			credentials: new AWS.CognitoIdentityCredentials(credentials)
+		});
+	}catch (error){
+
 	}
 }
 
