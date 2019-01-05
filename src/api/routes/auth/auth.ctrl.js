@@ -4,6 +4,7 @@ import AWS from 'aws-sdk';
 import request from 'request';
 import jwkToPem from 'jwk-to-pem';
 import jwt from 'jsonwebtoken'
+import { resolve } from 'path';
 
 const CognitoUserPool = AmazonCognitoIdentity.CognitoUserPool;
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(config.poolData);
@@ -27,28 +28,44 @@ export const register = async ctx => {
     }
 }
 
-export const login = async ctx => {
+export const login = async (req,res) => {
 	try {
 		const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
-			Username: ctx.body.id,
-			Password: ctx.body.pw
+			Username: req.body.id,
+			Password: req.body.pw
 		});
 		
 		const userData = {
-			Username: ctx.body.id,
+			Username: req.body.id,
 			Pool: userPool
 		};
 		const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-		console.log(authenticationDetails)
+		//console.log(authenticationDetails)
 		cognitoUser.authenticateUser(authenticationDetails, {
 			
 			onSuccess: function(result){
-				console.log(result)
-				console.log('access token : ' + result.getAccessToken().getJwtToken());
-				console.log('id token : ' + result.getIdToken().getJwtToken());
-				console.log('Refresh token : ' + result.getRefreshToken().getToken());
+				// console.log(result)
+				// console.log('access token : ' + result.getAccessToken().getJwtToken());
+				// console.log('id token : ' + result.getIdToken().getJwtToken());
+				// console.log('Refresh token : ' + result.getRefreshToken().getToken());
+				const tokens = {
+					accessToken: result.getAccessToken().getJwtToken(),
+					idToken:result.getIdToken().getJwtToken(),
+					refreshToken: result.getRefreshToken().getToken()
+				};
+				cognitoUser['tokens'] = tokens;
+				//console.log(cognitoUser);
+				//resolve(cognitoUser);
+			
 				updateLogin(result.getIdToken().getJwtToken());
-				success(result.getAccessToken().getJwtToken());	
+				console.log('here')
+				success(result.getAccessToken().getJwtToken());
+			
+				//console.log(cognitoUser)
+				//res.JSON(cognitoUser['tokens'])
+				//console.log(res)
+				res.json({
+					tokens:cognitoUser['tokens']})
 			},
 			onFailure: function(err){
 				console.log(err);
@@ -78,7 +95,7 @@ const updateLogin = async token => {
 
 const success = async token => {
 	const cognitoUser = userPool.getCurrentUser();
-		console.log(cognitoUser)
+		// console.log(cognitoUser)
 
 		if (cognitoUser != null) {
 			cognitoUser.getSession(function(err, result) {
@@ -93,7 +110,7 @@ const success = async token => {
 						loginUrl : result.getIdToken().getJwtToken()
 					 }
 				  });
-				  console.log(AWS.config.credentials)
+				  
 			   }
 			});
 		 }
@@ -101,8 +118,6 @@ const success = async token => {
 
 export const update = async ctx => {
 	try {
-	
-
 		const attributeList = [];
 		attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({
 			Name: "email",
@@ -132,3 +147,5 @@ export const update = async ctx => {
 	}
 	
 }
+
+
