@@ -53,17 +53,21 @@ export const login = async (req,res) => {
                     idToken:result.getIdToken().getJwtToken(),
                     refreshToken: result.getRefreshToken().getToken()
                 };
+		//로그인 이후 받은 토큰 저장
                 cognitoUser['tokens'] = tokens;
                 //console.log(cognitoUser);
                 //resolve(cognitoUser);
-            
+		
+		//로그인된 유저 권한부여
                 updateLogin(result.getIdToken().getJwtToken());
                 console.log('here')
+		//마지막으로 로그인된 유저에 대한 세션 받아와서 loginUrl 생성
                 success(result.getAccessToken().getJwtToken());
             
                 //console.log(cognitoUser)
                 //res.JSON(cognitoUser['tokens'])
                 //console.log(res)
+		//id토큰만 줘도되는지 이후 결정
                 res.json({
                     tokens:cognitoUser['tokens']})
             },
