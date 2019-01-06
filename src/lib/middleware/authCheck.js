@@ -1,12 +1,13 @@
+import AWS from 'aws-sdk'
 import config from 'config'
 import { runInNewContext } from 'vm';
 import { promises } from 'fs';
 import { privateEncrypt } from 'crypto';
 import jwt from 'jsonwebtoken'
 import jwkToPem from 'jwk-to-pem'
-//import * as auth from '../../api/routes/auth/auth.ctrl'
+import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js';
 
-export default() => (req,res,next) => {
+export default() => (req,res,next) => {'
 
     //토큰 받아오기
     const access = req.body.accessToken
@@ -29,7 +30,20 @@ export default() => (req,res,next) => {
     //time expired
     if(decode_token.auth_time > new Date()){
         console.log('good')
-        
+	if(decode_token.auth_time - new Data() < 5*60*1000){
+	    //refresh token
+	    cognitoUser = getCognitoUser(decode_token)	    	     
+	    cognitoUser.refreshSession(refresh, (err, session) => {
+		if ( err ) return res.setStatus(404)
+		AWS.config.credentials = getCognitoIdentityCredentials(id)
+		AWS.config.credentials.get(function(){
+		    const credentials = AWS.config.credentials.data.Credentials
+		    //token 어떻게 들어오는지 확인 필요
+		    req.body.sessionToken = credentials.SessionToken
+		    return next()
+		})
+	    }
+	}
     }else{
         console.log('expired')
         return res.sendStatus(401)
@@ -50,4 +64,29 @@ export default() => (req,res,next) => {
     }
 
     return next()
+}
+
+
+const getCognitoUser = (token) => {
+    const poolData = {
+	UserPoolId :config.poolData.UserPoolId,
+	ClientId : config.poolDaata.ClientId
+    };
+    const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+    const userData = {
+	Username : token.email,
+	Pool: userPool
+    }
+    return new AmazonCognitoIdentity.CognitoUser(userData)
+}
+
+const getCognitoIdentityCredentials = (token) => {
+    const loginInfo = {};
+    loginInfo[`cognito-idp.${config.pool_region}.amazonaws.com/${config.poolData.UserPoolId}`] = token
+    const params = {
+	IdentityPoolId: config.poolData.IdentityPoolId,
+	Logins: loginInfo
+
+    }
+    return new AWS.CognitoIdentityCredentials(params)
 }
