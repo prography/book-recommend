@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken'
 import jwkToPem from 'jwk-to-pem'
 import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js';
 
-export default() => (req,res,next) => {'
+export default() => (req,res,next) => {
 
     //토큰 받아오기
     const access = req.body.accessToken
@@ -42,7 +42,7 @@ export default() => (req,res,next) => {'
 		    req.body.sessionToken = credentials.SessionToken
 		    return next()
 		})
-	    }
+	    })
 	}
     }else{
         console.log('expired')
