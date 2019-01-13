@@ -30,20 +30,21 @@ export default() => (req,res,next) => {
     //time expired
     if(decode_token.auth_time > new Date()){
         console.log('good')
-        if(decode_token.auth_time - new Data() < 5*60*1000){
-            //refresh token
-            cognitoUser = getCognitoUser(decode_token)	    	     
-            cognitoUser.refreshSession(refresh, (err, session) => {
-                if ( err ) return res.setStatus(404)
-                AWS.config.credentials = getCognitoIdentityCredentials(id)
-                AWS.config.credentials.get(function(){
-                    const credentials = AWS.config.credentials.data.Credentials
-                    //token 어떻게 들어오는지 확인 필요
-                    req.body.sessionToken = credentials.SessionToken
-                    return next()
-                })
-	        })
-	    }
+	if(decode_token.auth_time - new Data() < 5*60*1000){
+	    //refresh token
+	    cognitoUser = getCognitoUser(decode_token)	    	     
+	    cognitoUser.refreshSession(refresh, (err, session) => {
+		if ( err ) return res.setStatus(404)
+		AWS.config.credentials = getCognitoIdentityCredentials(id)
+		AWS.config.credentials.get(function(){
+		    const credentials = AWS.config.credentials.data.Credentials
+		    //token 어떻게 들어오는지 확인 필요
+		    req.body.sessionToken = credentials.SessionToken
+		    return next()
+		})
+	    })
+	}
+
     }else{
         console.log('expired')
         return res.sendStatus(401)
