@@ -1,6 +1,7 @@
 import mysql from 'mysql'
+import config from 'config'
+let instance
 class singleton {
-    static instance
     constructor(){
 	if (instance) return instance;
 
@@ -12,9 +13,7 @@ class singleton {
 	    database: config.db.database
 
 	})
-	pool.on('enqueue', function(){
-	    console.log('waiting for availiable connection pool')
-	}
+	return instance;
     }
 }
 
