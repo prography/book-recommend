@@ -1,7 +1,6 @@
 import mysql from 'mysql'
-
 class singleton {
-    static instance;
+    static instance
     constructor(){
 	if (instance) return instance;
 
@@ -20,5 +19,4 @@ class singleton {
 }
 
 
-module.exports= singleton
-
+export default singleton
