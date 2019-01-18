@@ -1,7 +1,7 @@
 import mysql from 'mysql'
 import config from 'config'
 let instance
-class singleton {
+class Singleton {
     constructor(){
 	if (instance) return instance;
 
@@ -18,4 +18,4 @@ class singleton {
 }
 
 
-export default singleton
+export default Singleton
