@@ -49,6 +49,7 @@ export default() => (req,res,next) => {
     //console.log(credentials)
     // console.log(decode_token)
     if (!cachedSession.isValid()) {
+
         return res.sendStatus(401)
     } else {
         console.log(decode_token.exp - parseInt((new Date).getTime()/1000))
