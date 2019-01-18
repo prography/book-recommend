@@ -59,7 +59,7 @@ export const login = async (req,res) => {
                 //resolve(cognitoUser);
 		
 		//로그인된 유저 권한부여
-                updateLogin(result.getIdToken().getJwtToken());
+                authorizeUser(result.getIdToken().getJwtToken());
                 console.log('here')
 		//마지막으로 로그인된 유저에 대한 세션 받아와서 loginUrl 생성
                 success(result.getAccessToken().getJwtToken());
@@ -81,40 +81,42 @@ export const login = async (req,res) => {
     }
 }
 
-const updateLogin = async token => {
+const authorizeUser = async token => {
     try{
         const credentials = {};
         const url = 'cognito-idp.' + config.pool_region + '.amazonaws.com/' + config.poolData.UserPoolId;
         credentials['Logins'] = {};
         credentials['Logins'][url] = token;
-        credentials['IdentityPoolId'] = config.IdentityPoolId;
+        credentials['IdentityPoolId'] = config.poolData.IdentityPoolId;
         AWS.config.update({
             credentials: new AWS.CognitoIdentityCredentials(credentials)
             
         });
+        
+
     }catch (error){
         console.log(error)
+        console.log(123123)
     }
 }
 
-const success = async token => {
+const success = async (token) => {
     const cognitoUser = userPool.getCurrentUser();
         // console.log(cognitoUser)
-
         if (cognitoUser != null) {
             cognitoUser.getSession(function(err, result) {
                if (result) {
                   console.log('You are now logged in.');
-         
+                  console.log(result)
                   // Add the User's Id Token to the Cognito credentials login map.
-                  const loginUrl = 'cognito-idp.'+ config.pool_region +'.amazonaws.com/'+ config.poolData.UserPoolId
-                  AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                     IdentityPoolId: config.poolData.IdentityPoolId,
-                     Logins: {
-                        loginUrl : result.getIdToken().getJwtToken()
-                     }
-                  });
-                  
+
+                  AWS.config.credentials.refresh((err) => {
+                      if(err){
+                          console.log(err)
+                      }else{
+                          console.log('good success')
+                      }
+                  })
                }
             });
          }
@@ -151,5 +153,8 @@ export const update = async ctx => {
     }
     
 }
-
+export const logout = async (req,res) => {
+    const url = `https://book-recommend-app.auth.ap-northeast-2.amazoncognito.com/logout?client_id=${config.poolData.ClientId}&logout_uri=com.book-recommend://book-recommend/logout`
+    console.log(url)
+}
 
