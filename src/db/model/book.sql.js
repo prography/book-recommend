@@ -19,24 +19,19 @@ exports.insert_userbook = (model) => {
         )`
 }
 
-exports.select2 = (model) => {
+exports.update_flag = (model) => {
     return `
-        update user_book set had_read, where
-        select * from book where isbn = ${escape(model.isbn)}`
+        update user_book 
+        set had_read = ${escape(model.flag_r)}, is_interested = ${escape(model.flag_i)}
+        where user_id = ${escape(model.user_id)} and isbn = ${escape(model.isbn)}`
 }
 
-exports.transaction = (model) => {
+exports.insert_usertag = (model) => {
     return `
-        insert into sample(
-            id,col1,col2
+        insert into user_tag(
+            user_id, tags
         ) values(
-            ${escape(model.id)}
-            ,${escape(model.col1)}
-            ,${escape(model.col2)}
+            ${escape(model.user_id)}
+            ,${escape(model.tags)}
         )`
-}
-
-exports.select3 = (model) => {
-    return `
-        select * from sample_rel where sample_id = ${escape(model.sample_id)}`
 }
