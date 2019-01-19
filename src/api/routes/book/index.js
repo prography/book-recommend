@@ -99,7 +99,7 @@ router.post('/:title', function(req,res) {
 
 router.put('/:title', function(req, res) {
     // 유저가 읽은 것 취소할건지, 관심있는거 취소할건지(flag에 따라 상태 변경)
-    let title = req.params.title//urlencode(req.params.title);
+    let title = urlencode(req.params.title);
     let user_id = req.body.user_id;
     let flag_r = req.body.flag_r;
     let flag_i = req.body.flag_i;
@@ -128,8 +128,6 @@ router.put('/:title', function(req, res) {
             });
         }
     });
-
-    
 });
 
 export default router;
