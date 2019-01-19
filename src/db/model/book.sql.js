@@ -1,4 +1,5 @@
-const escape = require('mysql').escape;
+import mysql from 'mysql'
+const escape = mysql.escape;
 
 exports.select_isbn = (model) => {
     return `
