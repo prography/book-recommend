@@ -10,8 +10,21 @@ app.get('/books', function(req, res, next) {
     
 });
 
-app.get('/books/:tag', function(req, res, next) {
-    // 선택된 tag에 관련된 책정보 res    
+app.post('/books', function(req, res, next) {
+    // user_tag 테이블에 사용자가 선택한 tag insert
+    let user_id = req.body.user_id;
+    let tags = req.body.tags;       // 1;4;5
+
+    let params = [user_id, tags];
+    let sql = "insert into user_tag (user_id, tags) values (?, ?)";
+    connection.query(sql, params, function(error, result) {
+        if(error) {
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        }
+
+        console.log("tags 입력되었습니다!");
+    });
 });
 
 app.get('/books/:title', function(req, res, next) {   //       /books/해를품은달
