@@ -1,4 +1,4 @@
-const escape              = require('mysql').escape;
+const escape = require('mysql').escape;
 
 exports.select = (model) => {
   return `
