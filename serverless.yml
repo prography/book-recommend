@@ -72,16 +72,12 @@ functions:
           authorizer:
             name: authorizer
             arn: arn:aws:cognito-idp:ap-northeast-2:313518807194:userpool/ap-northeast-2_S46yR4qtz
-            claims:
-              - email
       - http:
           path: /{any+}
           method: ANY
           authorizer:
             name: authorizer
             arn: arn:aws:cognito-idp:ap-northeast-2:313518807194:userpool/ap-northeast-2_S46yR4qtz
-            claims:
-              - email
     timeout: 6
 
 #    The following are a few example events you can configure
