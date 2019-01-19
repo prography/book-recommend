@@ -2,15 +2,21 @@
 import express from 'express'
 import request from 'request'
 import urlencode from 'urlencode' // 한글을 UTF-8로 변경(URL Encode)
+import sqlquery from 'db/model/book.sql.js'
 import config from 'config'
-const app = express();
+import Singleton from 'db'
+const router = express.Router();
 
-app.get('/books', function(req, res, next) {
+const connection = new Singleton()
+console.log(connection)
+router.get('/', function(req, res) {
+    console.log(req)
     // 책 전체목록반환 , 대문 홈페이지 앞에 띄워줄거
-    
+    console.log("전체 목록 출력입니다.");
+    res.status(403).send('aefa')
 });
 
-app.post('/books', function(req, res, next) {
+router.post('/', function(req, res) {
     // user_tag 테이블에 사용자가 선택한 tag insert
     let user_id = req.body.user_id;
     let tags = req.body.tags;       // 1;4;5
@@ -23,11 +29,11 @@ app.post('/books', function(req, res, next) {
             res.status(500).send('Internal Server Error');
         }
 
-        console.log("tags 입력되었습니다!");
+        console.log("tags 입력되었습니다!");git
     });
 });
 
-app.get('/books/:title', function(req, res, next) {   //       /books/해를품은달
+router.get('/books/:title', function(req, res) {   //       /books/해를품은달
     // 책제목을 가지고 오면 json으로 책정보(작가, 내용, isbn)를 넘김
     let urlencodekey = urlencode(req.params.title);
     let options = {
@@ -55,7 +61,7 @@ app.get('/books/:title', function(req, res, next) {   //       /books/해를품�
     });
 });
 
-app.post('/books/:title', function(req,res) {
+router.post('/books/:title', function(req,res) {
     // 책제목 가지고 오면 isbn 결과 도출해서, flag값 가지고 온 걸 토대로 user_book 테이블에 상태값 insert
     let title = urlencode(req.params.title);
     let user_id = req.body.user_id;
@@ -88,7 +94,7 @@ app.post('/books/:title', function(req,res) {
     });
 });
 
-app.put('/books/:title', function(req, res) {
+router.put('/books/:title', function(req, res) {
     // 유저가 읽은 것 취소할건지, 관심있는거 취소할건지(flag에 따라 상태 변경)
     let title = urlencode(req.params.title);
     let user_id = req.body.user_id;
@@ -120,8 +126,4 @@ app.put('/books/:title', function(req, res) {
     });
 });
 
-module.exports = app;
-
-app.listen(3000, function() {
-    console.log('Connected, 3000 port!');
-});
+export default router;
