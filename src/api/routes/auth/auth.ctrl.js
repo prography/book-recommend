@@ -162,8 +162,4 @@ export const update = async ctx => {
     }
     
 }
-export const logout = async (req,res) => {
-    const url = `https://book-recommend-app.auth.ap-northeast-2.amazoncognito.com/logout?client_id=${process.env.CLIENT_ID}&logout_uri=com.book-recommend://book-recommend/logout`
-    console.log(url)
-}
 
