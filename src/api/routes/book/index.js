@@ -9,123 +9,127 @@ import Singleton from 'db'
 const router = express.Router();
 const connection = new Singleton();
 
-router.get('/', function(req, res) {
-    // 책 전체목록반환 , 대문 홈페이지 앞에 띄워줄거
-    console.log("전체 목록 출력입니다.");
-});
-
-router.post('/', function(req, res) {
-    // user_tag 테이블에 사용자가 선택한 tag insert
-    let user_id = req.body.user_id;
-    let tags = req.body.tags;       // 1;4;5
-
-    let params = [user_id, tags];
+router.get('/list', function(req, res) {    // /books?tags=;1;3;
+    // return : 1또는3또는5의 tag가 포함된 책들 list 반환
+    let tags = req.query.tags;
+    let tagArr = tags.split(';');
     
-    let sql = "insert into user_tag (user_id, tags) values (?, ?)";
-    connection.query(sql, params, function(error, result) {
-        console.log(result)
-        if(error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        }else{
+    let sql = "select * from book where ";
 
-            console.log("tags 입력되었습니다!");
+    for(let i=1; i<tagArr.length-1; i++) {
+        if(i == 1) {
+            sql += "tags like '%;" + tagArr[i] +";%' "
+        } else {
+            sql += "or tags like '%;" + tagArr[i] + ";%'"; 
         }
-    });
-});
+    }
 
-router.get('/:title', function(req, res) {   //       /books/해를품은달
-    // 책제목을 가지고 오면 json으로 책정보(작가, 내용, isbn)를 넘김
-    let urlencodekey = urlencode(req.params.title);
-    let options = {
-        url : 'https://dapi.kakao.com/v3/search/book?query=' + urlencodekey + '&page=1&size=1',
-        headers : {
-            "Authorization" : config.apiKey
-        }
-    };
-
-    request(options, function(error, response, html) {
-        if(error) {
-            throw error;
-        }
-
-        const obj = JSON.parse(html);   // String -> object
-
-        const resultJSON = {
-            title : req.params.title,
-            authors : obj.documents[0].authors,
-            contents : obj.documents[0].contents,
-            thumbnail : obj.documents[0].thumbnail,
-            isbn : obj.documents[0].isbn
-        };
-
-        res.json(resultJSON);
-    });
-});
-
-router.post('/:title', function(req,res) {
-    // 책제목 가지고 오면 isbn 결과 도출해서, flag값 가지고 온 걸 토대로 user_book 테이블에 상태값 insert
-    let title = urlencode(req.params.title);
-    let user_id = req.body.user_id;
-    let isbn;// = req.body.isbn;       // isbn도 android에서 가지고 옴?
-
-    let sql = "select isbn from book where book_name = ?";
-    connection.query(sql, title, function(error, result) {
+    connection.query(sql, function(error, result) {
         if(error) {
             console.log(error);
             res.status(500).send('Internal Server Error');
         } else {
-            isbn = result;
-            console.log("검색되었습니다!");
+            console.log("확인되었습니다.");
+            res.send(result);
         }
     });
+});
 
-    // android : flag값(flag_r, flag_i)를 0 또는 1로 넘겨줌
-    let flag_r = req.body.flag_r;
-    let flag_i = req.body.flag_i;
+router.get('/', function(req, res) {    // /books?title=위대한 개츠비
+    // return : 해품달이라는 title, 혹은 author가 포함된 책들 list 반환. 검색시에 사용.
+    // [{isbn:3, name:해품달, country:영국, ...}]
+    let title = req.query.title;
+    const params = [title];
+
+    let sql = "select * from book where book_name = ?";
+
+    connection.query(sql, params, function(error, result) {
+        if(error) {
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+router.get('/read', function(req, res) {    // /books/read
+    // 사용자가 읽은 책들의 list
+    let sql = "select * from book where isbn in (select isbn from user_book where had_read = 1);";
+
+    connection.query(sql, function(error, result) {
+        if(error) {
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+router.get('/interest', function(req, res) {    // /books/interest
+    // 사용자가 관심있는 책들의 list
+    let sql = "select * from book where isbn in (select isbn from user_book where be_interested = 1);";
+
+    connection.query(sql, function(error, result) {
+        if(error) {
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+router.get('/:isbn', function(req, res) {       // /books/9788937460753
+    // isbn값에 대한 책정보 반환
+    const isbn = req.params.isbn;
+    const params = [isbn];
+    let sql = "select * from book where isbn = ?";
+    
+    connection.query(sql, params, function(error, result) {
+        if(error) {
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+router.get('/:isbn/status', function(req, res) {    // books/9788937460753/status
+    // return : isbn값의 책과 관련된 flag 값들(읽었어요/좋아요) 가져옴
+    // {flat_r=0, flat_i=1}
+    const isbn = req.params.isbn;
+    const params = [isbn];
+    let sql = "select had_read, be_interested from user_book where isbn = ?";
+    
+    connection.query(sql, params, function(error, result) {
+        if(error) {
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+router.post('/:isbn/status', function(req, res) {
+    // return : isbn값의 책에 flag들(읽었어요/좋아요) 정보를 저장
+    const user_id = req.body.user_id;
+    const isbn = req.params.isbn;
+    const flag_r = req.body.flag_r;
+    const flag_i = req.body.flag_i;
     let params = [user_id, isbn, flag_r, flag_i];
-    sql = "insert into user_book (user_id, isbn, had_read, be_interested) values (?, ?, ?, ?)";
+
+    let sql = "insert into user_book (user_id, isbn, had_read, be_interested) values (?, ?, ?, ?)";
+    
     connection.query(sql, params, function(error, result) {
         if(error) {
             console.log(error);
             res.status(500).send('Internal Server Error');
         } else {
-            console.log("입력되었습니다!");
-        }
-            
-        // res.send('<h1>hola</h1>');
-    });
-});
-
-router.put('/:title', function(req, res) {
-    // 유저가 읽은 것 취소할건지, 관심있는거 취소할건지(flag에 따라 상태 변경)
-    let title = urlencode(req.params.title);
-    let user_id = req.body.user_id;
-    let flag_r = req.body.flag_r;
-    let flag_i = req.body.flag_i;
-    let isbn;
-
-    let sql = "select isbn from book where book_name = ?";
-    connection.query(sql, title, function(error, result) {
-        console.log(result);
-        if(error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        } else {
-            console.log(result[0]['isbn']);
-            isbn = result[0]['isbn'];
-            let params = [flag_r, flag_i, isbn, user_id];
-            sql = "update user_book set had_read = ?, be_interested = ? where isbn = ? and user_id = ?";
-    
-
-            connection.query(sql, params, function(error, result) {
-                if(error) {
-                    console.log(error);
-                    res.status(500).send('Internal Server Error');
-                } else {
-                    console.log("업데이트 되었습니다!");
-                }
-            });
+            res.status(201).send('created');
         }
     });
 });
