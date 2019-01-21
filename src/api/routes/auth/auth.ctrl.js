@@ -26,7 +26,7 @@ export const register = async (req,res)=> {
                 return;
             }
             console.log(result);
-            res.json(result);
+            res.json({'code':200, 'message':'success'});
             //let cognitoUser = result.user;
         });
     }catch(err){
