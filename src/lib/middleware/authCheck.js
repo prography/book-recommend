@@ -38,67 +38,48 @@ export default() => (req,res,next) => {
     //https://github.com/awslabs/aws-support-tools/tree/master/Cognito/decode-verify-jwt 
     //jwk 만들기
     request(`https://cognito-idp.${process.env.POOL_REGION}.amazonaws.com/${process.env.USER_POOL_ID}/.well-known/jwks.json`, (error, response, body) => {
-        const jwk = JSON.stringify(body) 
-    })
-    //console.log(jwk)
-    const pem = jwkToPem(jwk[0])
-    console.log(id.jwtToken)
-    const decode_token= jwt.verify(id.jwtToken,pem)
+        const jwk = JSON.parse(body)
+        const pem = jwkToPem(jwk.keys[0])
+        try{
+            const decode_token= jwt.verify(id.jwtToken,pem)
+            const cognitoUser = getCognitoUser(decode_token);
 
-    const cognitoUser = getCognitoUser(decode_token);
-    // const cognitoUser = userPool.getCurrentUser();
-    console.log(decode_token)
+            if(decode_token.exp - parseInt((new Date).getTime()/1000) < 5*60){
+                cognitoUser.refreshSession(refresh, (err, session) => {
+                    console.log(err)
+                    if (err) return res.status(401).json({ 'error' : err}) 
+                    const tokens = getTokens(session);
 
-    let cachedSession = sessionData
-    cognitoUser.getSession(function(err, result){
-        result.Session = sessionData
-        cachedSession = result
-    })
-    //const credentials = auth.authorizeUser(id)
-    //console.log(credentials)
-    // console.log(decode_token)
-    if (!cachedSession.isValid()) {
-
-        return res.sendStatus(401)
-    } else {
-        console.log(decode_token.exp - parseInt((new Date).getTime()/1000))
-        if(decode_token.exp - parseInt((new Date).getTime()/1000) < 5*60){
-            //cognitoUser = getCognitoUser(req);
-            cognitoUser.refreshSession(refresh, (err, session) => {
-                if (err) throw err;
-                const tokens = getTokens(session);
-                console.log(tokens)
-
-                AWS.config.credentials = getCognitoIdentityCredentials(tokens);
-                AWS.config.credentials.get(function() {
-                    console.log(AWS.config.credentials)
-                    const credentials = AWS.config.credentials.data.Credentials;
-                    console.log(getAWSCredentials(credentials))
-
-                // req.session.AWSCredentials = getAWSCredentials(credentials);
-
-                
+                    AWS.config.credentials = getCognitoIdentityCredentials(tokens);
+                    AWS.config.credentials.get(function() {
+                        const credentials = AWS.config.credentials.data.Credentials;
+                    // req.session.AWSCredentials = getAWSCredentials(credentials);
+                    });
                 });
-            });
+            }
+
+            //aud check
+            if(decode_token.aud == process.env.CLIENT_ID){
+                console.log('aud good')
+            }else{
+                console.log('not equal')
+                return res.status(401).json({'error': 'aud not equal'})
+            }
+
+            //iss check
+            if(decode_token.iss == 'https://cognito-idp.ap-northeast-2.amazonaws.com/'+process.env.USER_POOL_ID){
+                console.log('iss good')
+            }else{
+                return res.status(401).json({'error': 'iss not equal'})
+            }
+
+            return next()
+
+        }catch(err){
+            return res.status(401).json({'error':err})
         }
-    }
 
-    //aud check
-    if(decode_token.aud == process.env.CLIENT_ID){
-        console.log('good')
-    }else{
-        console.log('not equal')
-        return res.sendStatus(401)
-    }
-
-    //iss check
-    if(decode_token.iss == 'https://cognito-idp.ap-northeast-2.amazonaws.com/'+process.env.user){
-        console.log('good')
-    }else{
-        return res.sendStatus(401)
-    }
-
-    return next()
+    })
 }
 
 const getTokens = function(session) {
@@ -126,6 +107,7 @@ const getCognitoUser = (token) => {
 const getCognitoIdentityCredentials = (token) => {
     try{
         const loginInfo = {};
+        console.log(`cognito-idp.${process.env.POOL_REGION}.amazonaws.com/${process.env.USER_POOL_ID}`)
         loginInfo[`cognito-idp.${process.env.POOL_REGION}.amazonaws.com/${process.env.USER_POOL_ID}`] = token.idToken;
 
         const params = {
@@ -135,7 +117,7 @@ const getCognitoIdentityCredentials = (token) => {
         return new AWS.CognitoIdentityCredentials(params);
     }
     catch(err){
-        console.log(err)
+        throw err
     }
 }
 
