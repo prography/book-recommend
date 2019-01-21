@@ -79,13 +79,13 @@ export const login = async (req,res) => {
                     tokens:cognitoUser['tokens']})
             },
             onFailure: function(err){
-                res.json(err);
+                res.status(401).json(err);
                 console.log(err);
             }
 
         });
     } catch (error) {
-        res.json(error)
+        res.status(403).json({'error':error})
         console.log(error);
     }
 }
@@ -104,8 +104,9 @@ const authorizeUser = async token => {
         
 
     }catch (error){
+        
         console.log(error)
-        console.log(123123)
+        throw error
     }
 }
 
@@ -122,6 +123,7 @@ const success = async (token) => {
                   AWS.config.credentials.refresh((err) => {
                       if(err){
                           console.log(err)
+                          throw err
                       }else{
                           console.log('good success')
                       }
