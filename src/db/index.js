@@ -14,7 +14,7 @@ class Singleton {
 	    user : process.env.DB_USER, 
 	    password: process.env.DB_PW,
 	    database: process.env.DATABASE, 
-		port: config.db.port
+		port: process.env.port
 	})
 	return instance;
     }

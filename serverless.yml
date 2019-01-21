@@ -43,6 +43,7 @@ provider:
     DB_PW: ${self:custom.CONFIG.development.db.pw}
     DATABASE: ${self:custom.CONFIG.development.db.database}
     APIKEY: ${self:custom.CONFIG.development.apiKey}
+    PORT: ${self:custom.CONFIG.development.db.port}
 
 functions:
   book:
