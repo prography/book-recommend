@@ -3,7 +3,6 @@ import express from 'express'
 import request from 'request'
 import urlencode from 'urlencode' // 한글을 UTF-8로 변경(URL Encode)
 import sqlquery from 'db/model/book.sql.js'
-import config from 'config'
 import Singleton from 'db'
 
 const router = express.Router();
