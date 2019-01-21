@@ -34,7 +34,6 @@ router.get('/list', function(req, res) {    // /books?tags=;1;3;
     });
 });
 
-<<<<<<< HEAD
 router.get('/', function(req, res) {    // /books?title=위대한 개츠비
     // return : 해품달이라는 title, 혹은 author가 포함된 책들 list 반환. 검색시에 사용.
     // [{isbn:3, name:해품달, country:영국, ...}]
@@ -42,17 +41,6 @@ router.get('/', function(req, res) {    // /books?title=위대한 개츠비
     const params = [title];
 
     let sql = "select * from book where book_name = ?";
-=======
-router.get('/:title', function(req, res) {   //       /books/해를품은달
-    // 책제목을 가지고 오면 json으로 책정보(작가, 내용, isbn)를 넘김
-    let urlencodekey = urlencode(req.params.title);
-    let options = {
-        url : 'https://dapi.kakao.com/v3/search/book?query=' + urlencodekey + '&page=1&size=1',
-        headers : {
-            "Authorization" : process.env.APIKEY
-        }
-    };
->>>>>>> 176ae15b8ed5106c2a3456d92b60f6e7e7752f4f
 
     connection.query(sql, params, function(error, result) {
         if(error) {
