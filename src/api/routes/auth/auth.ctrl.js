@@ -14,20 +14,23 @@ const POOL_DATA = {
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(POOL_DATA);
 
 
-export const register = async ctx => {
+export const register = async (req,res)=> {
     try{
         const attributeList = [];
         //이후 어떤 값을 더받아야하는지 얘기후 추가
-        attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({Name:'email',Value:ctx.body.email}));
-        userPool.signUp(ctx.body.id,ctx.body.pw,attributeList,null,function(err,result){
+        attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({Name:'email',Value:req.body.email}));
+        userPool.signUp(req.body.id,req.body.pw,attributeList,null,function(err,result){
             if(err){
                 console.log(err);
+                res.json(err)
                 return;
             }
             console.log(result);
+            res.json(result);
             //let cognitoUser = result.user;
         });
     }catch(err){
+        res.json(err)
         console.log(err);
     }
 }
@@ -82,6 +85,7 @@ export const login = async (req,res) => {
 
         });
     } catch (error) {
+        res.json(error)
         console.log(error);
     }
 }
