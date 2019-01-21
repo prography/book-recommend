@@ -1,4 +1,3 @@
-import config from 'config';
 import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js';
 import AWS from 'aws-sdk';
 import request from 'request';
@@ -7,7 +6,12 @@ import jwt from 'jsonwebtoken'
 import { resolve } from 'path';
 
 const CognitoUserPool = AmazonCognitoIdentity.CognitoUserPool;
-const userPool = new AmazonCognitoIdentity.CognitoUserPool(config.poolData);
+const POOL_DATA = {
+    "UserPoolId": process.env.USER_POOL_ID,
+    "ClientId": process.env.CLIENT_ID,
+    "IdentityPoolId": process.env.IDENTITY_POOL_ID
+}
+const userPool = new AmazonCognitoIdentity.CognitoUserPool(POOL_DATA);
 
 
 export const register = async ctx => {
@@ -72,6 +76,7 @@ export const login = async (req,res) => {
                     tokens:cognitoUser['tokens']})
             },
             onFailure: function(err){
+                res.json(err);
                 console.log(err);
             }
 
@@ -84,10 +89,10 @@ export const login = async (req,res) => {
 const authorizeUser = async token => {
     try{
         const credentials = {};
-        const url = 'cognito-idp.' + config.pool_region + '.amazonaws.com/' + config.poolData.UserPoolId;
+        const url = 'cognito-idp.' + process.env.POOL_REGION + '.amazonaws.com/' + process.env.USER_POOL_ID;
         credentials['Logins'] = {};
         credentials['Logins'][url] = token;
-        credentials['IdentityPoolId'] = config.poolData.IdentityPoolId;
+        credentials['IdentityPoolId'] = process.env.IDENTITY_POOL_ID;
         AWS.config.update({
             credentials: new AWS.CognitoIdentityCredentials(credentials)
             
@@ -154,7 +159,7 @@ export const update = async ctx => {
     
 }
 export const logout = async (req,res) => {
-    const url = `https://book-recommend-app.auth.ap-northeast-2.amazoncognito.com/logout?client_id=${config.poolData.ClientId}&logout_uri=com.book-recommend://book-recommend/logout`
+    const url = `https://book-recommend-app.auth.ap-northeast-2.amazoncognito.com/logout?client_id=${process.env.CLIENT_ID}&logout_uri=com.book-recommend://book-recommend/logout`
     console.log(url)
 }
 

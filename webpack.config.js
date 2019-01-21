@@ -1,3 +1,4 @@
+global.fetch = require('node-fetch')
 const slsw = require("serverless-webpack");
 const path = require("path"); 
 const nodeExternals = require("webpack-node-externals");
@@ -6,10 +7,8 @@ module.exports = {
       entry: slsw.lib.entries,
       target: "node",
       resolve: {
-	  modules: [path.resolve('./src'),'node_modules'],
+	  modules: [path.resolve('./src')],
       },
-      devtool: 'source-map',
-      externals: [nodeExternals()],
       mode: slsw.lib.webpack.isLocal ? "development" : "production",
       optimization: {
 
@@ -19,20 +18,19 @@ module.exports = {
 
 	      hints: false
 	    },
-
+      externals: [nodeExternals()],
       module: {
 	      rules: [
 		        {
-			            test: /\.js$/,
-			            loader: ["babel-loader"],
-			            include: __dirname,
-			            exclude: /node_modules/
-			          }
+                    test: /\.js$/,
+                    loader: ["babel-loader"],
+                    include: __dirname
+                  }
 		      ]
       },
-      output: {
-	  libraryTarget: 'commonjs',
-	  path: path.join(__dirname, '.webpack'),
-	  filename: '[name].js'
-      },
+     output: {
+        libraryTarget: 'commonjs',
+        path: path.resolve(__dirname, '.webpack'),
+        filename: '[name].js',
+      }
 };
