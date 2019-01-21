@@ -1,5 +1,4 @@
 import mysql from 'mysql'
-import config from 'config'
 import { TIMEOUT } from 'dns';
 let instance
 class Singleton {
@@ -11,10 +10,10 @@ class Singleton {
 		connectTimeout  : 60 * 60 * 1000,
 		aquireTimeout   : 60 * 60 * 1000,
 		timeout         : 60 * 60 * 1000,
-	    host : config.db.host,
-	    user : config.db.user,
-	    password: config.db.pw,
-	    database: config.db.database,
+	    host : process.env.DB_HOST,
+	    user : process.env.DB_USER, 
+	    password: process.env.DB_PW,
+	    database: process.env.DATABASE, 
 		port: config.db.port
 	})
 	return instance;

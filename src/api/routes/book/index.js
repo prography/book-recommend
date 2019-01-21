@@ -3,7 +3,6 @@ import express from 'express'
 import request from 'request'
 import urlencode from 'urlencode' // 한글을 UTF-8로 변경(URL Encode)
 import sqlquery from 'db/model/book.sql.js'
-import config from 'config'
 import Singleton from 'db'
 
 const router = express.Router();
@@ -40,7 +39,7 @@ router.get('/:title', function(req, res) {   //       /books/해를품은달
     let options = {
         url : 'https://dapi.kakao.com/v3/search/book?query=' + urlencodekey + '&page=1&size=1',
         headers : {
-            "Authorization" : config.apiKey
+            "Authorization" : process.env.APIKEY
         }
     };
 

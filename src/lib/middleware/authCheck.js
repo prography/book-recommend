@@ -1,12 +1,13 @@
 import AWS, { CognitoIdentity } from 'aws-sdk'
-import config from 'config'
 import { runInNewContext } from 'vm';
 import { promises } from 'fs';
 import { privateEncrypt } from 'crypto';
 import jwt from 'jsonwebtoken'
 import jwkToPem from 'jwk-to-pem'
+import fetch from 'node-fetch'
 import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js';
 import { decode } from 'punycode';
+import request from 'request'
 const CognitoIdToken = require('amazon-cognito-identity-js-node').CognitoIdToken;
 const CognitoAccessToken = require('amazon-cognito-identity-js-node').CognitoAccessToken;
 const CognitoRefreshToken = require('amazon-cognito-identity-js-node').CognitoRefreshToken;
@@ -26,11 +27,19 @@ export default() => (req,res,next) => {
         AccessToken: access,
         RefreshToken: refresh
     };
-    const userPool = new AmazonCognitoIdentity.CognitoUserPool(config.poolData);
+    
+    const POOL_DATA = {
+        "UserPoolId": process.env.USER_POOL_ID,
+        "ClientId": process.env.CLIENT_ID,
+        "IdentityPoolId": process.env.IDENTITY_POOL_ID
+    }
+    const userPool = new AmazonCognitoIdentity.CognitoUserPool(POOL_DATA);
 
     //https://github.com/awslabs/aws-support-tools/tree/master/Cognito/decode-verify-jwt 
     //jwk 만들기
-    const jwk = config.jwk  
+    request(`https://cognito-idp.${process.env.POOL_REGION}.amazonaws.com/${process.env.USER_POOL_ID}/.well-known/jwks.json`, (error, response, body) => {
+        const jwk = JSON.stringify(body) 
+    })
     //console.log(jwk)
     const pem = jwkToPem(jwk[0])
     console.log(id.jwtToken)
@@ -75,7 +84,7 @@ export default() => (req,res,next) => {
     }
 
     //aud check
-    if(decode_token.aud == config.poolData.ClientId){
+    if(decode_token.aud == process.env.CLIENT_ID){
         console.log('good')
     }else{
         console.log('not equal')
@@ -83,7 +92,7 @@ export default() => (req,res,next) => {
     }
 
     //iss check
-    if(decode_token.iss == 'https://cognito-idp.ap-northeast-2.amazonaws.com/'+config.poolData.UserPoolId){
+    if(decode_token.iss == 'https://cognito-idp.ap-northeast-2.amazonaws.com/'+process.env.user){
         console.log('good')
     }else{
         return res.sendStatus(401)
@@ -102,8 +111,8 @@ const getTokens = function(session) {
 
 const getCognitoUser = (token) => {
     const poolData = {
-        UserPoolId :config.poolData.UserPoolId,
-        ClientId : config.poolData.ClientId
+        UserPoolId :process.env.USER_POOL_ID,
+        ClientId : process.env.CLIENT_ID
     };
     const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
     const userData = {
@@ -117,9 +126,10 @@ const getCognitoUser = (token) => {
 const getCognitoIdentityCredentials = (token) => {
     try{
         const loginInfo = {};
-        loginInfo[`cognito-idp.${config.pool_region}.amazonaws.com/${config.poolData.UserPoolId}`] = token.idToken;
+        loginInfo[`cognito-idp.${process.env.POOL_REGION}.amazonaws.com/${process.env.USER_POOL_ID}`] = token.idToken;
+
         const params = {
-            IdentityPoolId: config.poolData.IdentityPoolId,
+            IdentityPoolId: process.env.IDENTITY_POOL_ID,
             Logins: loginInfo
         };
         return new AWS.CognitoIdentityCredentials(params);
@@ -134,7 +144,7 @@ const getAWSCredentials = (credentials) => {
       accessKey: credentials.AccessKeyId,
       secretKey: credentials.SecretKey,
       sessionToken: credentials.SessionToken,
-      region: config.pool_region,
+      region: process.env.POOL_REGION,
       invokeUrl: 'https://' +  '82uym5oh19.execute-api.ap-northeast-2.amazonaws.com/dev/'
     };
   };
