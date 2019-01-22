@@ -1,4 +1,3 @@
-// npm install express request urlencode
 import express from 'express'
 import request from 'request'
 import urlencode from 'urlencode' // 한글을 UTF-8로 변경(URL Encode)
@@ -8,9 +7,9 @@ import Singleton from 'db'
 const router = express.Router();
 const connection = new Singleton();
 
-router.get('/list', function(req, res) {    // /books?tags=;1;3;
+router.get('/listwithtag/:tags', function(req, res) {    // /books?tags=;1;3;
     // return : 1또는3또는5의 tag가 포함된 책들 list 반환
-    let tags = req.query.tags;
+    let tags = req.params.tags;
     let tagArr = tags.split(';');
     
     let sql = "select * from book where ";
@@ -34,29 +33,47 @@ router.get('/list', function(req, res) {    // /books?tags=;1;3;
     });
 });
 
-router.get('/', function(req, res) {    // /books?title=위대한 개츠비
-    // return : 해품달이라는 title, 혹은 author가 포함된 책들 list 반환. 검색시에 사용.
-    // [{isbn:3, name:해품달, country:영국, ...}]
-    let title = req.query.title;
-    const params = [title];
-
-    let sql = "select * from book where book_name = ?";
-
-    connection.query(sql, params, function(error, result) {
-        if(error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.send(result);
+router.get('/listwithsearch/:search', function(req, res) {    // /books?title=위대한 개츠비
+    let urlencodekey = urlencode(req.params.search);
+    let options = {
+        url : 'https://dapi.kakao.com/v3/search/book?query=' + urlencodekey + '&page=1&size=1',
+        headers : {
+            "Authorization" : process.env.APIKEY
         }
+    };
+
+    request(options, function(error, response, html) {
+        if(error) {
+            throw error;
+        }
+
+        const params = [req.params.search, req.params.search];
+        let sql = "select * from book where book_name like '%" + req.params.search + "%' or author like '%" + req.params.search + "%'";
+        connection.query(sql, function(error, result) {
+            if(error) {
+                console.log(error);
+                res.status(500).send('Internal Server Error');
+            } else {
+                const obj = JSON.parse(html);   // String -> object
+
+                const resultArray = result;
+
+                for(let i=0; i<result.length; i++) {
+                    resultArray[i]['contents'] = obj.documents[0].contents;
+                    resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
+                }
+                res.send(resultArray);
+            }
+        });
     });
 });
 
-router.get('/read', function(req, res) {    // /books/read
+router.get('/read/:user_id', function(req, res) {    // /books/read
     // 사용자가 읽은 책들의 list
-    let sql = "select * from book where isbn in (select isbn from user_book where had_read = 1);";
+    const user_id = req.params.user_id;
+    let sql = "select * from book where isbn in (select isbn from user_book where had_read = 1 and user_id = ?);";
 
-    connection.query(sql, function(error, result) {
+    connection.query(sql, user_id, function(error, result) {
         if(error) {
             console.log(error);
             res.status(500).send('Internal Server Error');
@@ -66,11 +83,12 @@ router.get('/read', function(req, res) {    // /books/read
     });
 });
 
-router.get('/interest', function(req, res) {    // /books/interest
+router.get('/interest/:user_id', function(req, res) {    // /books/interest
     // 사용자가 관심있는 책들의 list
-    let sql = "select * from book where isbn in (select isbn from user_book where be_interested = 1);";
+    const user_id = req.params.user_id;
+    let sql = "select * from book where isbn in (select isbn from user_book where be_interested = 1 and user_id = ?);";
 
-    connection.query(sql, function(error, result) {
+    connection.query(sql, user_id, function(error, result) {
         if(error) {
             console.log(error);
             res.status(500).send('Internal Server Error');
