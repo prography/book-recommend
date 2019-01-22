@@ -1,9 +1,5 @@
 import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js';
 import AWS from 'aws-sdk';
-import request from 'request';
-import jwkToPem from 'jwk-to-pem';
-import jwt from 'jsonwebtoken'
-import { resolve } from 'path';
 
 const CognitoUserPool = AmazonCognitoIdentity.CognitoUserPool;
 const POOL_DATA = {
