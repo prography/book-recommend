@@ -9,13 +9,15 @@ const connection = new Singleton();
 
 router.get('/listwithtag/:tags', function(req, res) {    // /books?tags=;1;3;
     // return : 1또는3또는5의 tag가 포함된 책들 list 반환
-    let tags = req.params.tags;
-    let tagArr = tags.split(';');
+    const tags = req.params.tags;
+    console.log(tags)
+    const tagArr = tags.split(';');
+    console.log(tagArr)
     
     let sql = "select * from book where ";
 
-    for(let i=1; i<tagArr.length-1; i++) {
-        if(i == 1) {
+    for(let i=0; i<tagArr.length; i++) {
+        if(i == 0) {
             sql += "tags like '%;" + tagArr[i] +";%' "
         } else {
             sql += "or tags like '%;" + tagArr[i] + ";%'"; 
