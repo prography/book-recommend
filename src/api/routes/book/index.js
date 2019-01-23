@@ -105,23 +105,42 @@ router.get('/:isbn', function(req, res) {       // /books/9788937460753
     const isbn = req.params.isbn;
     const params = [isbn];
     let sql = "select * from book where isbn = ?";
-    
-    connection.query(sql, params, function(error, result) {
-        if(error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.send(result);
+     
+    let options = {
+        url : 'https://dapi.kakao.com/v3/search/book?query=' + isbn+ '&page=1&size=1',
+        headers : {
+            "Authorization" : process.env.APIKEY
         }
+    };
+
+    connection.query(sql,params, function(error, result) {
+        if(error) throw error;
+        request(options, function(error, response, html) {
+            if(error) {
+                throw error;
+            } else {
+                const obj = JSON.parse(html);   // string -> object
+                console.log()
+                const resultArray = result;
+
+                for(let i=0; i<resultArray.length; i++) {
+                    resultArray[i]['contents'] = obj.documents[0].contents;
+                    resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
+                }
+                res.send(resultArray);
+            }
+        });
     });
+ 
 });
 
-router.get('/:isbn/status', function(req, res) {    // books/9788937460753/status
+router.get('/status/:isbn/:user_id', function(req, res) {    // books/9788937460753/status
     // return : isbn값의 책과 관련된 flag 값들(읽었어요/좋아요) 가져옴
     // {flat_r=0, flat_i=1}
+    const user_id = req.params.user_id;
     const isbn = req.params.isbn;
-    const params = [isbn];
-    let sql = "select had_read, be_interested from user_book where isbn = ?";
+    const params = [isbn, user_id];
+    let sql = "select had_read, be_interested from user_book where isbn = ? and user_id = ?";
     
     connection.query(sql, params, function(error, result) {
         if(error) {
@@ -133,9 +152,9 @@ router.get('/:isbn/status', function(req, res) {    // books/9788937460753/statu
     });
 });
 
-router.post('/:isbn/status', function(req, res) {
+router.post('/status/:isbn/:user_id', function(req, res) {
     // return : isbn값의 책에 flag들(읽었어요/좋아요) 정보를 저장
-    const user_id = req.body.user_id;
+    const user_id = req.params.user_id;
     const isbn = req.params.isbn;
     const flag_r = req.body.flag_r;
     const flag_i = req.body.flag_i;
