@@ -131,45 +131,6 @@ router.get('/:isbn', function(req, res) {       // /books/9788937460753
             }
         });
     });
- 
-});
-
-router.get('/status/:isbn/:user_id', function(req, res) {    // books/9788937460753/status
-    // return : isbn값의 책과 관련된 flag 값들(읽었어요/좋아요) 가져옴
-    // {flat_r=0, flat_i=1}
-    const user_id = req.params.user_id;
-    const isbn = req.params.isbn;
-    const params = [isbn, user_id];
-    let sql = "select had_read, be_interested from user_book where isbn = ? and user_id = ?";
-    
-    connection.query(sql, params, function(error, result) {
-        if(error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.send(result);
-        }
-    });
-});
-
-router.post('/status/:isbn/:user_id', function(req, res) {
-    // return : isbn값의 책에 flag들(읽었어요/좋아요) 정보를 저장
-    const user_id = req.params.user_id;
-    const isbn = req.params.isbn;
-    const flag_r = req.body.flag_r;
-    const flag_i = req.body.flag_i;
-    let params = [user_id, isbn, flag_r, flag_i];
-
-    let sql = "insert into user_book (user_id, isbn, had_read, be_interested) values (?, ?, ?, ?)";
-    
-    connection.query(sql, params, function(error, result) {
-        if(error) {
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.status(201).send('created');
-        }
-    });
 });
 
 export default router;
