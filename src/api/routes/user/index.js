@@ -23,7 +23,7 @@ router.get('/selected/:user_id', function(req, res) {
     });
 });
 
-router.post('/status/:tag/:user_id', function(req, res) {
+router.post('/status/tag/:tag/:user_id', function(req, res) {
     // user가 고른 태그 저장
     const tag = ";" + req.params.tag + ";";
     const user_id = req.params.user_id;
@@ -41,7 +41,7 @@ router.post('/status/:tag/:user_id', function(req, res) {
     });
 });
 
-router.put('/status/:tag/:user_id', function(req, res) {
+router.put('/status/tag/:tag/:user_id', function(req, res) {
     // user가 고른 태그 추가(업데이트)
     const tag = req.params.tag + ";";
     const user_id = req.params.user_id;
@@ -85,7 +85,7 @@ router.delete('/delete/tag/:user_id', function(req, res) {
     });
 });
 
-router.get('/status/:isbn/:user_id', function(req, res) {
+router.get('/status/book/:isbn/:user_id', function(req, res) {
     // user가 isbn값의 책과 관련된 flag 값들(읽었어요/좋아요) 가져옴
     const user_id = req.params.user_id;
     const isbn = req.params.isbn;
@@ -102,7 +102,7 @@ router.get('/status/:isbn/:user_id', function(req, res) {
     });
 });
 
-router.post('/status/:isbn/:user_id', function(req, res) {
+router.post('/status/book/:isbn/:user_id', function(req, res) {
     // user에 isbn값의 책에 flag들(읽었어요/좋아요) 정보를 저장
     const user_id = req.params.user_id;
     const isbn = req.params.isbn;
