@@ -9,10 +9,9 @@ import authCheck from '../lib/middleware/authCheck';
 const router = express.Router();
 
 router.use('/auth', auth);
-router.use('/auth2',authCheck(), auth);
-router.use('/user', user);
-router.use('/books', book);
-router.use('/tags', tag);
+router.use('/user',authCheck(), user);
+router.use('/books',authCheck(),  book);
+router.use('/tags',authCheck(), tag);
 
 export default router;
 
