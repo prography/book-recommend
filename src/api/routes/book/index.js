@@ -3,6 +3,7 @@ import request from 'request'
 import urlencode from 'urlencode' // 한글을 UTF-8로 변경(URL Encode)
 import sqlquery from 'db/model/book.sql.js'
 import Singleton from 'db'
+import request_sync from 'sync-request'
 
 const router = express.Router();
 const connection = new Singleton();
@@ -10,10 +11,8 @@ const connection = new Singleton();
 router.get('/listwithtag/:tags', function(req, res) {    // /books?tags=;1;3;
     // return : 1또는3또는5의 tag가 포함된 책들 list 반환
     const tags = req.params.tags;
-    console.log(tags)
     const tagArr = tags.split(';');
-    console.log(tagArr)
-    
+
     let sql = "select * from book where ";
 
     for(let i=0; i<tagArr.length; i++) {
@@ -29,15 +28,29 @@ router.get('/listwithtag/:tags', function(req, res) {    // /books?tags=;1;3;
             console.log(error);
             res.status(500).send('Internal Server Error');
         } else {
-            console.log("확인되었습니다.");
-            res.send(result);
+            const resultArray = result;
+
+            for(let i=0; i<resultArray.length; i++) {
+                const headers = {
+                        "Authorization" : process.env.APIKEY
+                    }
+                const getdata = request_sync('GET','https://dapi.kakao.com/v3/search/book?query=' + resultArray[i]['isbn']+ '&page=1&size=1',{headers})
+                //console.log(getdata.body.toString('utf-8'))
+                const obj = JSON.parse(getdata.body.toString('utf-8'))
+                //console.log(obj.documents)
+                resultArray[i]['contents'] = obj.documents[0].contents;
+                resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
+            }
+            return res.send(resultArray)
+
+
         }
     });
 });
 
 router.get('/listwithsearch/:search', function(req, res) {    // /books?title=위대한 개츠비
-    let urlencodekey = urlencode(req.params.search);
-    let options = {
+    const urlencodekey = urlencode(req.params.search);
+    const options = {
         url : 'https://dapi.kakao.com/v3/search/book?query=' + urlencodekey + '&page=1&size=1',
         headers : {
             "Authorization" : process.env.APIKEY
@@ -54,7 +67,7 @@ router.get('/listwithsearch/:search', function(req, res) {    // /books?title=�
         connection.query(sql, function(error, result) {
             if(error) {
                 console.log(error);
-                res.status(500).send('Internal Server Error');
+                res.status(500).send('Internal Server Error : '+error);
             } else {
                 const obj = JSON.parse(html);   // String -> object
 
@@ -74,13 +87,25 @@ router.get('/read/:user_id', function(req, res) {    // /books/read
     // 사용자가 읽은 책들의 list
     const user_id = req.params.user_id;
     let sql = "select * from book where isbn in (select isbn from user_book where had_read = 1 and user_id = ?);";
-
     connection.query(sql, user_id, function(error, result) {
         if(error) {
             console.log(error);
             res.status(500).send('Internal Server Error');
         } else {
-            res.send(result);
+            const resultArray = result;
+
+            for(let i=0; i<resultArray.length; i++) {
+                const headers = {
+                        "Authorization" : process.env.APIKEY
+                    }
+                const getdata = request_sync('GET','https://dapi.kakao.com/v3/search/book?query=' + resultArray[i]['isbn']+ '&page=1&size=1',{headers})
+                //console.log(getdata.body.toString('utf-8'))
+                const obj = JSON.parse(getdata.body.toString('utf-8'))
+                //console.log(obj.documents)
+                resultArray[i]['contents'] = obj.documents[0].contents;
+                resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
+            }
+            return res.send(resultArray)
         }
     });
 });
@@ -95,7 +120,20 @@ router.get('/interest/:user_id', function(req, res) {    // /books/interest
             console.log(error);
             res.status(500).send('Internal Server Error');
         } else {
-            res.send(result);
+            const resultArray = result;
+
+            for(let i=0; i<resultArray.length; i++) {
+                const headers = {
+                        "Authorization" : process.env.APIKEY
+                    }
+                const getdata = request_sync('GET','https://dapi.kakao.com/v3/search/book?query=' + resultArray[i]['isbn']+ '&page=1&size=1',{headers})
+                //console.log(getdata.body.toString('utf-8'))
+                const obj = JSON.parse(getdata.body.toString('utf-8'))
+                //console.log(obj.documents)
+                resultArray[i]['contents'] = obj.documents[0].contents;
+                resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
+            }
+            return res.send(resultArray)
         }
     });
 });
@@ -106,7 +144,7 @@ router.get('/:isbn', function(req, res) {       // /books/9788937460753
     const params = [isbn];
     let sql = "select * from book where isbn = ?";
      
-    let options = {
+    const options = {
         url : 'https://dapi.kakao.com/v3/search/book?query=' + isbn+ '&page=1&size=1',
         headers : {
             "Authorization" : process.env.APIKEY
@@ -120,7 +158,6 @@ router.get('/:isbn', function(req, res) {       // /books/9788937460753
                 throw error;
             } else {
                 const obj = JSON.parse(html);   // string -> object
-                console.log()
                 const resultArray = result;
 
                 for(let i=0; i<resultArray.length; i++) {
