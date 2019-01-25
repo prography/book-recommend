@@ -19,7 +19,7 @@ router.get('/listwithtag/:tags', function(req, res) {    // /books?tags=;1;3;
         if(i == 0) {
             sql += "tags like '%;" + tagArr[i] +";%' "
         } else {
-            sql += "or tags like '%;" + tagArr[i] + ";%'"; 
+            sql += "and tags like '%;" + tagArr[i] + ";%'"; 
         }
     }
 
