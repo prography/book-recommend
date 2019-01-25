@@ -31,7 +31,7 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: ap-northeast-2 
-  timeout: 6
+  timeout: 10 
   environment:
     STAGE: ${self:provider.stage}
     USER_POOL_ID: ${self:custom.CONFIG.development.poolData.UserPoolId}
@@ -61,5 +61,5 @@ functions:
           authorizer:
             name: authorizer
             arn: arn:aws:cognito-idp:ap-northeast-2:313518807194:userpool/ap-northeast-2_S46yR4qtz
-    timeout: 6
+    timeout: 10 
 
