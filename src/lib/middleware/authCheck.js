@@ -13,14 +13,15 @@ const CognitoAccessToken = require('amazon-cognito-identity-js-node').CognitoAcc
 const CognitoRefreshToken = require('amazon-cognito-identity-js-node').CognitoRefreshToken;
 
 export default() => (req,res,next) => {
+    console.log('middleware')
+    console.log(req)
     //토큰 받아오기
     // const id = req.body.idToken
     // const access = req.body.accessToken
     //const refresh = req.body.refreshToken
-    const access = new CognitoAccessToken({AccessToken: req.body.accessToken});
-    const id = new CognitoIdToken({IdToken: req.body.idToken});
-    const refresh = new CognitoRefreshToken({RefreshToken: req.body.refreshToken});
-    
+    const access = new CognitoAccessToken({AccessToken: req.headers.accesstoken});
+    const id = new CognitoIdToken({IdToken: req.headers.idtoken});
+    const refresh = new CognitoRefreshToken({RefreshToken: req.headers.refreshtoken});
     // console.log(refresh)
     const sessionData = {
         IdToken: id,
