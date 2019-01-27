@@ -206,22 +206,20 @@ router.get('/recommend/:user_id', function(req, res) {
                             }, function(err, response, body){
                                 // console.log(err)
                                 if(err) return err 
-                                let scoredbook = []
-                                scoredbook = body
+                                let scoredbook = body 
                                 console.log(scoredbook)
-                                res.send(scoredbook) 
-                                scoredbook = scoredbook.substring(1,scoredbook.length-1)
-                                console.log(scoredbook)
+                                scoredbook = scoredbook.substring(1,scoredbook.length-1).replace(/\"/gi,'\'')
+                                const params = [scoredbook]
 
-                                let sql4 = "select isbn from book where book_name in (?)"             
-                                connection.query(sql4, scoredbook, function(error, result4){
+                                let sql4 = "select isbn from book where book_name in ("+scoredbook +")"             
+                                connection.query(sql4, null, function(error, result4){
                                     if(error){
                                         console.log(error)
                                         res.status(500).send('Internal Server Error');
                                     } else{
                                         console.log("result4------------------")
-                                        console.log(result4)
                                         console.log(sql4)
+                                        console.log(result4)
                                     }
                                 })
                             })
