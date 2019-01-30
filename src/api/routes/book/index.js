@@ -51,35 +51,29 @@ router.get('/listwithtag/:tags', function(req, res) {    // /books?tags=;1;3;
 router.get('/listwithsearch/:search', function(req, res) {    // /books?title=위대한 개츠비
     const urlencodekey = urlencode(req.params.search);
     const options = {
-        url : 'https://dapi.kakao.com/v3/search/book?query=' + urlencodekey + '&page=1&size=1',
         headers : {
             "Authorization" : process.env.APIKEY
         }
     };
 
-    request(options, function(error, response, html) {
+
+    const params = [req.params.search, req.params.search];
+    let sql = "select * from book where book_name like '%" + req.params.search + "%' or author like '%" + req.params.search + "%'";
+    connection.query(sql, function(error, result) {
         if(error) {
-            throw error;
-        }
-
-        const params = [req.params.search, req.params.search];
-        let sql = "select * from book where book_name like '%" + req.params.search + "%' or author like '%" + req.params.search + "%'";
-        connection.query(sql, function(error, result) {
-            if(error) {
-                console.log(error);
-                res.status(500).send('Internal Server Error : '+error);
-            } else {
-                const obj = JSON.parse(html);   // String -> object
-
-                const resultArray = result;
-
-                for(let i=0; i<result.length; i++) {
-                    resultArray[i]['contents'] = obj.documents[0].contents;
-                    resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
-                }
-                res.send(resultArray);
+            console.log(error);
+            res.status(500).send('Internal Server Error : '+error);
+        } else {
+            const resultArray = result;
+            for(let i=0; i<result.length; i++) {
+                const data = request_sync('GET','https://dapi.kakao.com/v3/search/book?query=' + urlencode(result[i].book_name)+ '&page=1&size=1',options)
+                console.log(data)
+                const obj = JSON.parse(data.body.toString('utf-8'))
+                resultArray[i]['contents'] = obj.documents[0].contents;
+                resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
             }
-        });
+            res.send(resultArray);
+        }
     });
 });
 
