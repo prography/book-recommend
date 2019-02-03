@@ -8,22 +8,14 @@ topn: output으로 상위 몇 개를 가져올 것인가 결정
 book_path: "book.json" 파일의 경로*
 */ 
 
-import request from 'request'
-const CallPython = (book_list, tag_list) => {
-    request.post({
-        url:'http://django-env.muwpiqpbhd.ap-northeast-2.elasticbeanstalk.com/books/',
-        //url:'http://localhost:8000/books/',
-        form: {
-                book_list:book_list, 
-                tag_list:tag_list
-        }
-    }, function(err, response, body){
-        console.log(err)
-        if(err) return err 
-        const data = body
-        console.log(data)
-        return data
-    })
-}
+import request_sync from 'sync-request'
 
+const CallPython = (book_list, tag_list) => {
+    console.log('dltkddms ajdcjddl')
+    const res = request_sync('POST', 'http://django-env.muwpiqpbhd.ap-northeast-2.elasticbeanstalk.com/books/',
+        {"book_list":book_list},
+        {"tag_list":tag_list}
+    )
+    return res.getBody('utf8')
+}
 export default CallPython
