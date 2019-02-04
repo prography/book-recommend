@@ -217,3 +217,4 @@ router.get('/recommend/:user_id', function(req, res) {
     });
 });
 
+export default router
