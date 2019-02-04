@@ -124,6 +124,26 @@ router.post('/status/book/:isbn/:user_id', function(req, res) {
     });
 });
 
+router.put('/status/book/:isbn/:user_id', function(req, res) {
+    // user에 isbn값의 책에 flag들(읽었어요/좋아요) 정보를 저장
+    const user_id = req.params.user_id;
+    const isbn = req.params.isbn;
+    const flag_r = req.body.flag_r;
+    const flag_i = req.body.flag_i;
+    let params = [flag_r, flag_i, user_id, isbn];
+
+    let sql = "update user_book set had_read = ?, be_interested = ? where user_id = ? and isbn = ?";
+    
+    connection.query(sql, params, function(error, result) {
+        if(error) {
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.status(201).send('updated');
+        }
+    });
+});
+
 router.get('/book/:user_id', function(req, res) {
     // user가 user_book 테이블에 등록된 isbn을 토대로 모든 책정보 반환
     const user_id = req.params.user_id;
@@ -197,15 +217,22 @@ router.get('/recommend/:user_id', function(req, res) {
                                     res.status(500).send('Internal Server Error');
                                 } else{
                                     const resultArray = result4
-                                    for(let i=0; i<resultArray.length; i++) {
-                                        const headers = {
-                                                "Authorization" : process.env.APIKEY
-                                        }
+                                    for(let i=0; i<resultArray.length; i++) {
+
+                                        const headers = {
+
+                                                "Authorization" : process.env.APIKEY
+
+                                        }
+
                                         const getdata = request_sync('GET','https://dapi.kakao.com/v3/search/book?query=' + resultArray[i]['isbn']+ '&page=1&size=1',{headers})
                                         const obj = JSON.parse(getdata.body.toString('utf-8'))
-                                        resultArray[i]['contents'] = obj.documents[0].contents;
-                                        resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
-                                    }
+                                        resultArray[i]['contents'] = obj.documents[0].contents;
+
+                                        resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
+
+                                    }
+
                                     res.send(resultArray)
                                 }
                             })
@@ -217,3 +244,4 @@ router.get('/recommend/:user_id', function(req, res) {
     });
 });
 
+export default router
