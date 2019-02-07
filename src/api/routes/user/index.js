@@ -110,7 +110,7 @@ router.post('/status/book/:isbn/:user_id', function(req, res) {
     const isbn = req.params.isbn;
     const flag_r = req.body.flag_r;
     const flag_i = req.body.flag_i;
-    let params = [user_id, isbn, flag_r, flag_i];
+    const params = [user_id, isbn, flag_r, flag_i];
 
     let sql = "insert into user_book (user_id, isbn, had_read, be_interested) values (?, ?, ?, ?)";
     
@@ -130,7 +130,7 @@ router.put('/status/book/:isbn/:user_id', function(req, res) {
     const isbn = req.params.isbn;
     const flag_r = req.body.flag_r;
     const flag_i = req.body.flag_i;
-    let params = [flag_r, flag_i, user_id, isbn];
+    const params = [flag_r, flag_i, user_id, isbn];
 
     let sql = "update user_book set had_read = ?, be_interested = ? where user_id = ? and isbn = ?";
     
