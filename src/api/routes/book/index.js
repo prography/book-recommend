@@ -59,7 +59,7 @@ router.get('/listwithsearch/:search', function(req, res) {    // /books?title=Ïú
     const params = [req.params.search, req.params.search];
     let sql = "select * from book where book_name like '%" + params[0] + "%' or author like '%"+ params[1] +"%'";
     connection.query(sql, params, function(error, result) {
-        const rest= []
+        const rest= {} 
         if(error) {
             console.log(error);
             console.log(sql);
@@ -67,7 +67,7 @@ router.get('/listwithsearch/:search', function(req, res) {    // /books?title=Ïú
         } else {
             if(result.length ==0){
                 console.log('Í≤∞Í≥ºÏóÜÏùå')
-                rest.push(true)
+                rest.isExist=false
                 const data = request_sync('GET','https://dapi.kakao.com/v3/search/book?query=' + urlencode(params[0])+ '&page=1&size=10',options)
                 // console.log(data)
                 const obj = JSON.parse(data.body.toString('utf-8'))
@@ -82,9 +82,9 @@ router.get('/listwithsearch/:search', function(req, res) {    // /books?title=Ïú
                     resultArray.thumbnail = obj.documents[i].thumbnail;
                     arr.push(resultArray)
                 }
-                rest.push(arr)
+                rest.data = arr
             }else{
-                rest.push(false)
+                rest.isExist=true
                 const resultArray = result;
                 for(let i=0; i<result.length; i++) {
                     const data = request_sync('GET','https://dapi.kakao.com/v3/search/book?query=' + urlencode(result[i].book_name)+ '&page=1&size=1',options)
@@ -93,7 +93,7 @@ router.get('/listwithsearch/:search', function(req, res) {    // /books?title=Ïú
                     resultArray[i]['contents'] = obj.documents[0].contents;
                     resultArray[i]['thumbnail'] = obj.documents[0].thumbnail;
                 }
-                rest.push(resultArray)
+                rest.data=resultArray
             }
             res.send(rest)
         }
