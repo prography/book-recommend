@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.use('/auth', auth);
 router.use('/auth2',authCheck(), auth);
-router.use('/user',authCheck(), user);
+router.use('/user',user);
 router.use('/books', book);
 router.use('/tags', tag);
 
