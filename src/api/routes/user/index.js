@@ -183,6 +183,10 @@ router.get('/recommend/:user_id', function(req, res) {
                     console.log(error);
                     res.status(500).send('Internal Server Error');
                 } else {
+                    if(result2.length ==0){
+                        res.status(400).send('태그를 골라주세요.')
+                    }
+                    console.log(result2)
                     const tagsArr = result2[0].tags.split(';');
 
                     let sql3 = "select tag_name from tag where tag_id = "                
@@ -190,7 +194,9 @@ router.get('/recommend/:user_id', function(req, res) {
                         if(i == 1) {
                             sql3 += + tagsArr[1]  
                         } else {
-                            sql3 += " or tag_id = "+ tagsArr[i]
+                            if(tagsArr[i]!=""){
+                                sql3 += " or tag_id = "+ tagsArr[i]
+                            }
                         }
                     }
                     connection.query(sql3, function(error, result3){
